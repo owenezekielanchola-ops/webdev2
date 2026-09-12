@@ -7,17 +7,30 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductService {
-private final ProductRepository productRepository;
-    public ProductService(ProductRepository productRepository) {
+   private final ProductRepository productRepository;
+    private final ShopProperties shopProperties;
+
+   public ProductService(ProductRepository productRepository, ShopProperties shopProperties) {
         this.productRepository = productRepository;
+        this.shopProperties = shopProperties;
     }
-       public List<Product> getProductsAbovePrice(double threshold) {
+
+     public List<Product> getProductsAbovePrice(double threshold) {
         return productRepository.findAll().stream()
                 .filter(product -> product.getPrice() > threshold)
                 .collect(Collectors.toList());
     }
-       public List<Product> getAllProducts() {
+     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+
+    public String getShopName() {
+        return shopProperties.getName();
+    }
+
+     public String getShopCurrency() {
+        return shopProperties.getCurrency();
+    }
+    
 
 }
