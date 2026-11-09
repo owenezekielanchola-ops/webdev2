@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Task List</title>
+</head>
+<body>
+    <h1>Task List</h1>
+
+    <p th:if="${tasks.isEmpty()}">No tasks found.</p>
+
+    <ul th:if="${!tasks.isEmpty()}">
+        <li th:each="task : ${tasks}">
+            <a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}"></a>
+            -
+            <span th:text="${task.completed}"></span>
+        </li>
+    </ul>
+</body>
+</html>

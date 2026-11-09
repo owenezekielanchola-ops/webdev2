@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Detail</title>
+</head>
+<body>
+    <h1>Task Detail</h1>
+
+    <p>ID: <span th:text="${task.id}"></span></p>
+    <p>Title: <span th:text="${task.title}"></span></p>
+    <p>Description: <span th:text="${task.description}"></span></p>
+    <p>Completed: <span th:text="${task.completed}"></span></p>
+
+    <p><a th:href="@{/tasks}">Back to Task List</a></p>
+</body>
+</html>
