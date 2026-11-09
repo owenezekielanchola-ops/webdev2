@@ -1,13 +1,13 @@
-package com.copal.webdev2;
+package com.example.tasktracker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Webdev2Application {
+public class TasktrackerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Webdev2Application.class, args);
+		SpringApplication.run(TasktrackerApplication.class, args);
 	}
 
 }
