@@ -7,6 +7,8 @@
 <body>
     <h1>Task List</h1>
 
+    <p><a th:href="@{/tasks/new}">Create New Task</a></p>
+
     <p th:if="${tasks.isEmpty()}">No tasks found.</p>
 
     <ul th:if="${!tasks.isEmpty()}">
