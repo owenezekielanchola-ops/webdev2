@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Not Found</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 6px; }
+        h1 { color: #cc0000; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-    <h1>Task Not Found</h1>
-    <p th:text="${errorMessage}"></p>
-    <p><a th:href="@{/tasks}">Back to Task List</a></p>
+    <div class="box">
+        <h1>Task Not Found</h1>
+        <p th:text="${errorMessage}"></p>
+        <p><a th:href="@{/tasks}">Back to Task List</a></p>
+    </div>
 </body>
 </html>

@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Task List</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .box { border: 1px solid #ccc; padding: 20px; border-radius: 6px; }
+        li { margin-bottom: 8px; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-    <h1>Task List</h1>
+    <div class="box">
+        <h1>Task List</h1>
 
-    <p><a th:href="@{/tasks/new}">Create New Task</a></p>
+        <p><a th:href="@{/tasks/new}">+ Create New Task</a></p>
 
-    <p th:if="${tasks.isEmpty()}">No tasks found.</p>
+        <p th:if="${tasks.isEmpty()}">No tasks found.</p>
 
-    <ul th:if="${!tasks.isEmpty()}">
-        <li th:each="task : ${tasks}">
-            <a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}"></a>
-            -
-            <span th:text="${task.completed}"></span>
-        </li>
-    </ul>
+        <ul th:if="${!tasks.isEmpty()}">
+            <li th:each="task : ${tasks}">
+                <a th:href="@{/tasks/{id}(id=${task.id})}" th:text="${task.title}"></a>
+                -
+                <span th:text="${task.completed ? 'Completed' : 'Pending'}"></span>
+            </li>
+        </ul>
+    </div>
 </body>
 </html>
