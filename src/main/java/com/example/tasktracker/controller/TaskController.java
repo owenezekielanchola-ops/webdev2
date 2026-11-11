@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,5 +49,11 @@ public class TaskController {
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + id));
         model.addAttribute("task", task);
         return "task-detail";
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public String handleTaskNotFound(TaskNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/not-found";
     }
 }
