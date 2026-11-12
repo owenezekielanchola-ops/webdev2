@@ -66,4 +66,10 @@ public class PetController {
     public List<String> getAllSpecies() {
         return petService.getAllSpecies();
     }
+
+    @PostMapping("/batch")
+    public ResponseEntity<String> batchRegister(@RequestBody List<Pet> pets) {
+        petService.batchRegister(pets);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Batch registered successfully");
+    }
 }
