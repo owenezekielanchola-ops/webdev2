@@ -47,4 +47,16 @@ public class PetService {
         }
         petRepository.deleteById(id);
     }
+
+    public List<Pet> getPetsBySpecies(String species) {
+        return petRepository.findBySpeciesIgnoreCase(species);
+    }
+
+    public List<Pet> searchPetsByName(String keyword) {
+        return petRepository.findByNameContainingIgnoreCase(keyword);
+    }
+
+    public List<String> getAllSpecies() {
+        return petRepository.findAllSpecies();
+    }
 }
