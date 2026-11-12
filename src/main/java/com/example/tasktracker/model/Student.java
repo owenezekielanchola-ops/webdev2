@@ -5,9 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +20,8 @@ public class Student {
 
     private String fullName;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-        name = "student_course",
-        joinColumns = @JoinColumn(name = "student_id"),
-        inverseJoinColumns = @JoinColumn(name = "course_id")
-    )
-    private List<Course> courses = new ArrayList<>();
+    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     public Student() {
     }
@@ -37,9 +30,14 @@ public class Student {
         this.fullName = fullName;
     }
 
-    public void addCourse(Course course) {
-        courses.add(course);
-        course.getStudents().add(this);
+    public void addEnrollment(Enrollment enrollment) {
+        enrollments.add(enrollment);
+        enrollment.setStudent(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        enrollments.remove(enrollment);
+        enrollment.setStudent(null);
     }
 
     public Long getId() {
@@ -58,11 +56,11 @@ public class Student {
         this.fullName = fullName;
     }
 
-    public List<Course> getCourses() {
-        return courses;
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
     }
 
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
+    public void setEnrollments(List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
     }
 }

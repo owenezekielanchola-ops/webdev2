@@ -1,10 +1,11 @@
 package com.example.tasktracker.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +22,8 @@ public class Course {
 
     private String title;
 
-    @ManyToMany(mappedBy = "courses")
-    private List<Student> students = new ArrayList<>();
+    @OneToMany(mappedBy = "course", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     public Course() {
     }
@@ -56,11 +57,11 @@ public class Course {
         this.title = title;
     }
 
-    public List<Student> getStudents() {
-        return students;
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
     }
 
-    public void setStudents(List<Student> students) {
-        this.students = students;
+    public void setEnrollments(List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
     }
 }
