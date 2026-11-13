@@ -1,0 +1,195 @@
+{
+  "info": {
+    "name": "Week11 - Owen Ezekiel A. Anchola API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Pet - Validation Error (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"microchipNumber\": \"\",\n  \"name\": \"\",\n  \"species\": \"Dog\",\n  \"ownerId\": 0\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/pets",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets"]
+        }
+      }
+    },
+    {
+      "name": "Get Non-Existent Pet (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets/999",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets", "999"]
+        }
+      }
+    },
+    {
+      "name": "Create Pet (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"microchipNumber\": \"MC-2026-01\",\n  \"name\": \"Muning\",\n  \"species\": \"Cat\",\n  \"breed\": \"Puspin\",\n  \"ownerId\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/pets",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets"]
+        }
+      }
+    },
+    {
+      "name": "List Pets Paginated and Sorted (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets?page=0&size=5&sort=name,asc",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets"],
+          "query": [
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "5" },
+            { "key": "sort", "value": "name,asc" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter Pets by Species (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets?species=Dog",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets"],
+          "query": [
+            { "key": "species", "value": "Dog" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Pets Max Size Cap (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets?size=999",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets"],
+          "query": [
+            { "key": "size", "value": "999" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Pet by ID (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Pet PUT (200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"microchipNumber\": \"MC-2026-01\",\n  \"name\": \"Muning Updated\",\n  \"species\": \"Cat\",\n  \"breed\": \"Siamese\",\n  \"ownerId\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/pets/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets", "2"]
+        }
+      }
+    },
+    {
+      "name": "Partial Update Pet PATCH (200)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Muning Patched\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/pets/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets", "2"]
+        }
+      }
+    },
+    {
+      "name": "Delete Pet (204)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/pets/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "pets", "2"]
+        }
+      }
+    }
+  ]
+}
