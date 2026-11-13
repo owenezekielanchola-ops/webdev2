@@ -9,7 +9,10 @@ import com.example.tasktracker.model.Owner;
 import com.example.tasktracker.model.Pet;
 import com.example.tasktracker.repository.OwnerRepository;
 import com.example.tasktracker.repository.PetRepository;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,10 +42,23 @@ public class PetService {
     }
 
     @Transactional(readOnly = true)
-    public List<PetDTO> findAll() {
-        return petRepository.findAll().stream()
-                .map(this::toDTO)
-                .toList();
+    public Page<PetDTO> findAll(int page, int size, String sort, String direction, String species) {
+        int cappedSize = Math.min(Math.max(size, 1), 100);
+        String sortField = sort;
+        String sortDirection = direction;
+        if (sort != null && sort.contains(",")) {
+            String[] parts = sort.split(",");
+            sortField = parts[0];
+            if (parts.length > 1 && !parts[1].isBlank()) {
+                sortDirection = parts[1];
+            }
+        }
+        Sort.Direction dir = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(Math.max(page, 0), cappedSize, Sort.by(dir, sortField));
+        Page<Pet> result = (species != null && !species.isBlank())
+                ? petRepository.findBySpeciesIgnoreCase(species, pageable)
+                : petRepository.findAll(pageable);
+        return result.map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
