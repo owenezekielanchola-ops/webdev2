@@ -1,12 +1,12 @@
 package com.example.tasktracker.service;
 
+import com.example.tasktracker.dto.PetDTO;
 import com.example.tasktracker.model.Pet;
 import com.example.tasktracker.repository.PetRepository;
 import java.util.List;
-import org.springframework.http.HttpStatus;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PetService {
@@ -17,54 +17,28 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public Pet registerPet(Pet p) {
-        if (p.getMicrochipNumber() == null || p.getMicrochipNumber().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Microchip number is required");
-        }
-        return petRepository.save(p);
+    public PetDTO toDTO(Pet pet) {
+        Long ownerId = pet.getOwner() != null ? pet.getOwner().getId() : null;
+        return new PetDTO(
+                pet.getId(),
+                pet.getMicrochipNumber(),
+                pet.getName(),
+                pet.getSpecies(),
+                pet.getBreed(),
+                ownerId
+        );
     }
 
-    public List<Pet> getAllPets() {
-        return petRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<PetDTO> findAll() {
+        return petRepository.findAll().stream()
+                .map(this::toDTO)
+                .toList();
     }
 
-    public Pet getPetById(Long id) {
+    @Transactional(readOnly = true)
+    public Optional<PetDTO> findById(Long id) {
         return petRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with id: " + id));
-    }
-
-    public Pet updatePet(Long id, Pet updated) {
-        Pet existing = getPetById(id);
-        existing.setMicrochipNumber(updated.getMicrochipNumber());
-        existing.setName(updated.getName());
-        existing.setSpecies(updated.getSpecies());
-        existing.setBreed(updated.getBreed());
-        return petRepository.save(existing);
-    }
-
-    public void removePet(Long id) {
-        if (!petRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with id: " + id);
-        }
-        petRepository.deleteById(id);
-    }
-
-    public List<Pet> getPetsBySpecies(String species) {
-        return petRepository.findBySpeciesIgnoreCase(species);
-    }
-
-    public List<Pet> searchPetsByName(String keyword) {
-        return petRepository.findByNameContainingIgnoreCase(keyword);
-    }
-
-    public List<String> getAllSpecies() {
-        return petRepository.findAllSpecies();
-    }
-
-    @Transactional
-    public void batchRegister(List<Pet> pets) {
-        for (Pet p : pets) {
-            petRepository.save(p);
-        }
+                .map(this::toDTO);
     }
 }

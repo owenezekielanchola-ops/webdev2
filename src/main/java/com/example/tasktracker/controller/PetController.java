@@ -3,6 +3,7 @@ package com.example.tasktracker.controller;
 import com.example.tasktracker.dto.CreatePetRequest;
 import com.example.tasktracker.dto.PetDTO;
 import com.example.tasktracker.dto.UpdatePetRequest;
+import com.example.tasktracker.service.PetService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,14 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/pets")
 public class PetController {
 
+    private final PetService petService;
+
+    public PetController(PetService petService) {
+        this.petService = petService;
+    }
+
     @GetMapping
     public List<PetDTO> getAll() {
-        return null;
+        return petService.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PetDTO> getById(@PathVariable Long id) {
-        return null;
+        return petService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
