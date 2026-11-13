@@ -1,11 +1,20 @@
 package com.example.tasktracker.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class CreatePetRequest {
 
+    @NotBlank
     private String microchipNumber;
+
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String species;
+
     private String breed;
+
     private Long ownerId;
 
     public CreatePetRequest() {

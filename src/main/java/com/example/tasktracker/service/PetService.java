@@ -1,20 +1,27 @@
 package com.example.tasktracker.service;
 
+import com.example.tasktracker.dto.CreatePetRequest;
 import com.example.tasktracker.dto.PetDTO;
+import com.example.tasktracker.model.Owner;
 import com.example.tasktracker.model.Pet;
+import com.example.tasktracker.repository.OwnerRepository;
 import com.example.tasktracker.repository.PetRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PetService {
 
     private final PetRepository petRepository;
+    private final OwnerRepository ownerRepository;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(PetRepository petRepository, OwnerRepository ownerRepository) {
         this.petRepository = petRepository;
+        this.ownerRepository = ownerRepository;
     }
 
     public PetDTO toDTO(Pet pet) {
@@ -40,5 +47,21 @@ public class PetService {
     public Optional<PetDTO> findById(Long id) {
         return petRepository.findById(id)
                 .map(this::toDTO);
+    }
+
+    @Transactional
+    public PetDTO create(CreatePetRequest request) {
+        Pet pet = new Pet();
+        pet.setMicrochipNumber(request.getMicrochipNumber());
+        pet.setName(request.getName());
+        pet.setSpecies(request.getSpecies());
+        pet.setBreed(request.getBreed());
+        if (request.getOwnerId() != null) {
+            Owner owner = ownerRepository.findById(request.getOwnerId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner not found with id: " + request.getOwnerId()));
+            pet.setOwner(owner);
+        }
+        Pet saved = petRepository.save(pet);
+        return toDTO(saved);
     }
 }

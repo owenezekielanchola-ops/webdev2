@@ -4,6 +4,8 @@ import com.example.tasktracker.dto.CreatePetRequest;
 import com.example.tasktracker.dto.PetDTO;
 import com.example.tasktracker.dto.UpdatePetRequest;
 import com.example.tasktracker.service.PetService;
+import jakarta.validation.Valid;
+import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/pets")
@@ -39,8 +42,13 @@ public class PetController {
     }
 
     @PostMapping
-    public ResponseEntity<PetDTO> create(@RequestBody CreatePetRequest request) {
-        return null;
+    public ResponseEntity<PetDTO> create(@Valid @RequestBody CreatePetRequest request) {
+        PetDTO created = petService.create(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{id}")
