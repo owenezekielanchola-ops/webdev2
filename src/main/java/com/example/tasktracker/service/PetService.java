@@ -3,6 +3,7 @@ package com.example.tasktracker.service;
 import com.example.tasktracker.dto.CreatePetRequest;
 import com.example.tasktracker.dto.PetDTO;
 import com.example.tasktracker.dto.UpdatePetRequest;
+import com.example.tasktracker.exception.DuplicateResourceException;
 import com.example.tasktracker.model.Owner;
 import com.example.tasktracker.model.Pet;
 import com.example.tasktracker.repository.OwnerRepository;
@@ -52,6 +53,9 @@ public class PetService {
 
     @Transactional
     public PetDTO create(CreatePetRequest request) {
+        if (petRepository.existsByMicrochipNumber(request.getMicrochipNumber())) {
+            throw new DuplicateResourceException("Microchip number already exists: " + request.getMicrochipNumber());
+        }
         Pet pet = new Pet();
         pet.setMicrochipNumber(request.getMicrochipNumber());
         pet.setName(request.getName());
@@ -71,6 +75,9 @@ public class PetService {
         return petRepository.findById(id).map(pet -> {
             if (request.getMicrochipNumber() == null || request.getMicrochipNumber().isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "microchipNumber is required");
+            }
+            if (petRepository.existsByMicrochipNumberAndIdNot(request.getMicrochipNumber(), id)) {
+                throw new DuplicateResourceException("Microchip number already exists: " + request.getMicrochipNumber());
             }
             pet.setMicrochipNumber(request.getMicrochipNumber());
             pet.setName(request.getName());
@@ -93,6 +100,9 @@ public class PetService {
             if (request.getMicrochipNumber() != null) {
                 if (request.getMicrochipNumber().isBlank()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "microchipNumber cannot be blank");
+                }
+                if (petRepository.existsByMicrochipNumberAndIdNot(request.getMicrochipNumber(), id)) {
+                    throw new DuplicateResourceException("Microchip number already exists: " + request.getMicrochipNumber());
                 }
                 pet.setMicrochipNumber(request.getMicrochipNumber());
             }
