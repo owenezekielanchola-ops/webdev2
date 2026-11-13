@@ -40,6 +40,7 @@ CORS is enabled for `http://localhost:3000` on `/api/**` (`GET`, `POST`, `PUT`, 
 - `species` (`String`): `@NotBlank`, `@Size(max = 50)`
 - `breed` (`String`, optional): `@Size(max = 80)`
 - `ownerId` (`Long`, optional): `@Min(1)`
+- `ownerEmail` (`String`, optional): `@Email`
 
 ### `UpdatePetRequest`
 
@@ -48,6 +49,7 @@ CORS is enabled for `http://localhost:3000` on `/api/**` (`GET`, `POST`, `PUT`, 
 - `species` (`String`): `@Size(max = 50)` (required in `PUT`)
 - `breed` (`String`, optional): `@Size(max = 80)`
 - `ownerId` (`Long`, optional): `@Min(1)`
+- `ownerEmail` (`String`, optional): `@Email`
 
 ---
 

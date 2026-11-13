@@ -6,6 +6,21 @@
   "item": [
     {
       "name": "Create Pet - Validation Error (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 400 with validation errors array', function () {",
+              "    pm.response.to.have.status(400);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.errors).to.be.an('array').that.is.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -29,6 +44,21 @@
     },
     {
       "name": "Get Non-Existent Pet (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 404 ErrorResponse', function () {",
+              "    pm.response.to.have.status(404);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.status).to.eql(404);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -43,6 +73,19 @@
     },
     {
       "name": "Create Pet (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -66,6 +109,23 @@
     },
     {
       "name": "List Pets Paginated and Sorted (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 paginated Page response', function () {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.content).to.be.an('array');",
+              "    pm.expect(json).to.have.property('totalElements');",
+              "    pm.expect(json).to.have.property('totalPages');",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -85,6 +145,21 @@
     },
     {
       "name": "Filter Pets by Species (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 filtered by species', function () {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.content).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -102,6 +177,21 @@
     },
     {
       "name": "List Pets Max Size Cap (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Caps size=999 to 100', function () {",
+              "    pm.response.to.have.status(200);",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.size).to.be.at.most(100);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -119,6 +209,19 @@
     },
     {
       "name": "Get Pet by ID (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -133,6 +236,19 @@
     },
     {
       "name": "Update Pet PUT (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 OK on PUT', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "PUT",
         "header": [
@@ -156,6 +272,19 @@
     },
     {
       "name": "Partial Update Pet PATCH (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 OK on PATCH', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "PATCH",
         "header": [
@@ -179,6 +308,19 @@
     },
     {
       "name": "Delete Pet (204)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 204 No Content on DELETE', function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "DELETE",
         "header": [],

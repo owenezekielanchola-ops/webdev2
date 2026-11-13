@@ -1,5 +1,6 @@
 package com.example.tasktracker.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,9 @@ public class CreatePetRequest {
 
     @Min(value = 1, message = "Owner ID must be at least 1")
     private Long ownerId;
+
+    @Email(message = "Owner email must be valid")
+    private String ownerEmail;
 
     public CreatePetRequest() {
     }
@@ -65,5 +69,13 @@ public class CreatePetRequest {
 
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
     }
 }
