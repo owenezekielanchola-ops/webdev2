@@ -1,4 +1,4 @@
-# WEBDEV2 — Week 9 Lab Answers
+# WEBDEV2 — Week 10 Lab Answers
 
 Name: Owen Ezekiel A. Anchola
 Student ID: 2511003
@@ -7,284 +7,395 @@ Date submitted: 2026-11-13
 
 ---
 
-## Task 1 — One-to-One + One-to-Many Mappings
+## Task 1 — URL Design & Controller Skeleton
+
+**URL design table (method, path, expected status codes):**
+
+| HTTP Method | URL Path | Expected Status Codes |
+|---|---|---|
+| GET | `/api/pets` | `200` |
+| GET | `/api/pets/{id}` | `200`, `404` |
+| POST | `/api/pets` | `201`, `400` |
+| PUT | `/api/pets/{id}` | `200`, `404`, `400` |
+| PATCH | `/api/pets/{id}` | `200`, `404`, `400` |
+| DELETE | `/api/pets/{id}` | `204`, `404` |
+
+**Controller skeleton code:**
+```java
+@RestController
+@RequestMapping("/api/pets")
+public class PetController {
+
+    @GetMapping
+    public List<PetDTO> getAll() {
+        return null;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PetDTO> getById(@PathVariable Long id) {
+        return null;
+    }
+
+    @PostMapping
+    public ResponseEntity<PetDTO> create(@RequestBody CreatePetRequest request) {
+        return null;
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PetDTO> update(@PathVariable Long id, @RequestBody UpdatePetRequest request) {
+        return null;
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PetDTO> patch(@PathVariable Long id, @RequestBody UpdatePetRequest request) {
+        return null;
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return null;
+    }
+}
+```
+
+**Evidence (screenshot filename or curl output):**
+```text
+> curl.exe -s -i http://localhost:8080/api/pets
+HTTP/1.1 200 
+Content-Type: application/json
+Content-Length: 98
+Date: Fri, 13 Nov 2026 13:10:03 GMT
+
+[{"id":1,"microchipNumber":"MC-9001","name":"Bantay","species":"Dog","breed":"Aspin","ownerId":1}]
+```
+
+**Reflection question:**
+_Why do REST URLs use plural nouns (`/api/students`) rather than verb phrases (`/api/getStudents`), and what role does the HTTP method play?_
+
+Your answer:
+The REST endpoints are plural nouns because we aren't looking to perform an action on a URL, but rather to access the collection of resources. The HTTP method (GET, POST, PUT, PATCH, DELETE) will allow for the server to know which action to take on the resource.
+
+---
+
+## Task 2 — GET Endpoints — List & Get by ID
 
 **Approach / explanation:**
-The one-to-one relationship was implemented by having the `User` entity as the owner (using `@JoinColumn(name = "profile_id")`) and `UserProfile` as the inverse side (`mappedBy = "profile"`). In the `Employee` entity, the one-to-many relationship was implemented using `@ManyToOne(fetch = FetchType.LAZY)` with `@JoinColumn(name = "department_id", nullable = false)`. The `Department` entity uses `mappedBy = "department"` and `addEmployee()` and `removeEmployee()`.
+GET `/api/pets` calls `petService.findAll()` which returns a list of `PetDTO`s with a `200 OK` status. If there are no database rows it returns an empty array. GET `/api/pets/{id}` calls `petService.findById(id)` which translates the `Optional` into either a `200 OK` or `404 Not Found`. `PetDTO` only contains the fields `id`, `microchipNumber`, `name`, `species`, `breed` and `ownerId`. It does not include the `Owner` which is a lazy relationship to the `Owner` entity.
 
-**Code / endpoint(s) used (if applicable):**
+**`PetDTO` class code:**
 ```java
-@Entity
-@Table(name = "app_users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+package com.example.tasktracker.dto;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "profile_id")
-    private UserProfile profile;
+public class PetDTO {
+
+    private Long id;
+    private String microchipNumber;
+    private String name;
+    private String species;
+    private String breed;
+    private Long ownerId;
+
+    public PetDTO() {
+    }
+
+    public PetDTO(Long id, String microchipNumber, String name, String species, String breed, Long ownerId) {
+        this.id = id;
+        this.microchipNumber = microchipNumber;
+        this.name = name;
+        this.species = species;
+        this.breed = breed;
+        this.ownerId = ownerId;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getMicrochipNumber() { return microchipNumber; }
+    public void setMicrochipNumber(String microchipNumber) { this.microchipNumber = microchipNumber; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getSpecies() { return species; }
+    public void setSpecies(String species) { this.species = species; }
+    public String getBreed() { return breed; }
+    public void setBreed(String breed) { this.breed = breed; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
 }
+```
 
-@Entity
-@Table(name = "user_profiles")
-public class UserProfile {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @OneToOne(mappedBy = "profile")
-    private User user;
+**`toDTO()` mapping method code:**
+```java
+public PetDTO toDTO(Pet pet) {
+    Long ownerId = pet.getOwner() != null ? pet.getOwner().getId() : null;
+    return new PetDTO(
+            pet.getId(),
+            pet.getMicrochipNumber(),
+            pet.getName(),
+            pet.getSpecies(),
+            pet.getBreed(),
+            ownerId
+    );
 }
+```
 
-@Entity
-@Table(name = "department")
-public class Department {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+**Evidence (screenshot filename or curl/Postman output):**
+```text
+=== GET ALL ===
+HTTP/1.1 200 
+Content-Type: application/json
+Content-Length: 98
+
+[{"id":1,"microchipNumber":"MC-9001","name":"Bantay","species":"Dog","breed":"Aspin","ownerId":1}]
+
+=== GET BY ID 200 ===
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":1,"microchipNumber":"MC-9001","name":"Bantay","species":"Dog","breed":"Aspin","ownerId":1}
+
+=== GET BY ID 404 ===
+HTTP/1.1 404 
+Content-Length: 0
+```
+
+**Reflection question:**
+_What would go wrong if you returned the JPA entity directly from `@GetMapping("/{id}")` instead of a DTO?_
+
+Your answer:
+If we were to return the JPA entity then we are exposing information about our database schema and any private/internal fields contained within it. It also exposes our API to any changes made to the database. We could also run into issues with LazyInitializationExceptions or infinite JSON loops when Jackson tries to serialise our lazy relationships.
+
+---
+
+## Task 3 — POST Endpoint — Create with 201 + Location
+
+**Approach / explanation:**
+I created an object called `CreatePetRequest` which only contains the relevant fields from the input. The `create` method in `PetService` converts the DTO into a `Pet` entity and saves it using the `petRepository.save()` method. Then it converts it back to a `PetDTO` using `toDTO()`. In the `create` method of `PetController` I used `ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri()` to set the location header and return a `201 Created`.
+
+**`CreatePetRequest` class code:**
+```java
+package com.example.tasktracker.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+public class CreatePetRequest {
+
+    @NotBlank
+    private String microchipNumber;
+
+    @NotBlank
     private String name;
 
-    @OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    private List<Employee> employees = new ArrayList<>();
+    @NotBlank
+    private String species;
 
-    public void addEmployee(Employee employee) {
-        employees.add(employee);
-        employee.setDepartment(this);
+    private String breed;
+
+    private Long ownerId;
+
+    public CreatePetRequest() {
     }
 
-    public void removeEmployee(Employee employee) {
-        employees.remove(employee);
-        employee.setDepartment(null);
+    public String getMicrochipNumber() { return microchipNumber; }
+    public void setMicrochipNumber(String microchipNumber) { this.microchipNumber = microchipNumber; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getSpecies() { return species; }
+    public void setSpecies(String species) { this.species = species; }
+    public String getBreed() { return breed; }
+    public void setBreed(String breed) { this.breed = breed; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
+}
+```
+
+**Controller `create()` method code:**
+```java
+@PostMapping
+public ResponseEntity<PetDTO> create(@Valid @RequestBody CreatePetRequest request) {
+    PetDTO created = petService.create(request);
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(created.getId())
+            .toUri();
+    return ResponseEntity.created(location).body(created);
+}
+```
+
+**Evidence (screenshot filename or curl/Postman output):**
+```text
+=== POST 201 ===
+HTTP/1.1 201 
+Location: http://localhost:8080/api/pets/2
+Content-Type: application/json
+
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi","species":"Cat","breed":"Scottish Fold","ownerId":1}
+```
+
+**Reflection question:**
+_Why does the REST contract specify `201 Created` for a successful POST rather than `200 OK`, and why is the `Location` header useful to include?_
+
+Your answer:
+The reason why we have a 201 Created status is because we want to inform the client that a new resource has been created. The location header tells the client where the new resource has been created (e.g. `/api/pets/2`) so they can GET or update it.
+
+---
+
+## Task 4 — PUT, PATCH & DELETE
+
+**Approach / explanation:**
+`UpdatePetRequest` contains the fields that can be updated when using PUT/PATCH. In the `update` method of `PetService`, all of the fields that can be updated are set on the `Pet` we load. In the `patch` method we check if each field is not null and only update those that have been passed. When we DELETE a pet using `DELETE /api/pets/{id}` we return `false` from the service if the ID doesn't exist. This means the controller will return a `204 No Content` on the first call and a `404 Not Found` on the second call.
+
+**`UpdatePetRequest` class code:**
+```java
+package com.example.tasktracker.dto;
+
+public class UpdatePetRequest {
+
+    private String microchipNumber;
+    private String name;
+    private String species;
+    private String breed;
+    private Long ownerId;
+
+    public UpdatePetRequest() {
     }
-}
 
-@Entity
-@Table(name = "employee")
-public class Employee {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String fullName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    public String getMicrochipNumber() { return microchipNumber; }
+    public void setMicrochipNumber(String microchipNumber) { this.microchipNumber = microchipNumber; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getSpecies() { return species; }
+    public void setSpecies(String species) { this.species = species; }
+    public String getBreed() { return breed; }
+    public void setBreed(String breed) { this.breed = breed; }
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
 }
 ```
 
-**Evidence (screenshot filename, request/response sample, or file reference in this folder):**
+**Controller code for PUT, PATCH, DELETE:**
+```java
+@PutMapping("/{id}")
+public ResponseEntity<PetDTO> update(@PathVariable Long id, @RequestBody UpdatePetRequest request) {
+    return petService.update(id, request)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
+
+@PatchMapping("/{id}")
+public ResponseEntity<PetDTO> patch(@PathVariable Long id, @RequestBody UpdatePetRequest request) {
+    return petService.patch(id, request)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> delete(@PathVariable Long id) {
+    if (!petService.delete(id)) {
+        return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.noContent().build();
+}
+```
+
+**Evidence (screenshot filename or curl/Postman output):**
 ```text
-Hibernate: insert into user_profiles (bio) values (?)
-Hibernate: insert into app_users (created_at,email,profile_id,username) values (?,?,?,?)
-Hibernate: insert into department (name) values (?)
-Hibernate: insert into employee (department_id,full_name) values (?,?)
-Hibernate: insert into employee (department_id,full_name) values (?,?)
-Hibernate: select d1_0.id,d1_0.name from department d1_0
-Hibernate: select e1_0.department_id,e1_0.id,e1_0.full_name from employee e1_0 where e1_0.department_id=?
-TASK1_READBACK - Department: Engineering | Employees: [Alice Reyes, Marco Santos]
+=== PUT 2 ===
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi Updated","species":"Cat","breed":"British Shorthair","ownerId":1}
+
+=== PATCH 2 (only name sent: {"name":"Mochi Patched"}) ===
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi Patched","species":"Cat","breed":"British Shorthair","ownerId":1}
+
+=== DELETE 2 (1st) ===
+HTTP/1.1 204 
+
+=== DELETE 2 (2nd 404) ===
+HTTP/1.1 404 
+Content-Length: 0
 ```
 
 **Reflection question:**
-_Which entity owns the `Department`–`Employee` relationship and why, and what value must `mappedBy` contain?_
+_What is the difference between `PUT` and `PATCH` in terms of what the client sends, and what must the service-layer `patch()` method do differently from `update()`?_
 
 Your answer:
-The `Employee` entity owns the relationship because there is a foreign key of `department_id` in the `employee` table. The `mappedBy` should be set to `"department"`.
+PUT requests contain the full representation of the resource therefore all of the updateable fields will be updated. PATCH requests only contain fields that the client wants to update. In the service layer `update()` method all fields are set whereas in the `patch()` method we need to check if each field is not null.
 
 ---
 
-## Task 2 — Many-to-Many Join Table + Association Entity
+## Task 5 — Full DTO Layer Audit + Capstone Milestone 3
 
-**Approach / explanation:**
-I initially implemented the many-to-many relationship between `Student` and `Course` using `@ManyToMany` and `@JoinTable`. However, I changed it to use an `Enrollment` entity to store additional fields of `enrollmentDate` and `grade`. A unique constraint was added with a name of `uk_student_course` on the fields `student_id` and `course_id`.
+**DTO class list (names only — confirm no entity class names appear):**
+- `CreatePetRequest`
+- `UpdatePetRequest`
+- `PetDTO`
 
-**Code / endpoint(s) used (if applicable):**
-```java
-@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-@JoinTable(
-    name = "student_course",
-    joinColumns = @JoinColumn(name = "student_id"),
-    inverseJoinColumns = @JoinColumn(name = "course_id")
-)
-private List<Course> courses = new ArrayList<>();
+**409 Conflict scenario:**
+We cannot have two pets with the same `microchipNumber`. Before we save a new pet or update the pet to have another pet's microchip we check if there is already a pet with that `microchipNumber` using `petRepository.existsByMicrochipNumber(...)`. If there is, we throw an exception which results in a `409 Conflict`.
 
-@Entity
-@Table(
-    name = "enrollment",
-    uniqueConstraints = @UniqueConstraint(name = "uk_student_course", columnNames = {"student_id", "course_id"})
-)
-public class Enrollment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private LocalDate enrollmentDate;
-    private String grade;
+Request:
+```http
+POST /api/pets
+Content-Type: application/json
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
-}
+{"microchipNumber":"MC-1010","name":"Mochi","species":"Cat","breed":"Scottish Fold","ownerId":1}
 ```
 
-**Evidence (screenshot filename, request/response sample, or file reference in this folder):**
+Response:
+```http
+HTTP/1.1 409 
+Content-Type: application/json
+
+{"message":"Microchip number already exists: MC-1010"}
+```
+
+**Capstone Milestone 3 smoke-check evidence:**
 ```text
-Hibernate: create table enrollment (enrollment_date date, course_id bigint not null, id bigint not null auto_increment, student_id bigint not null, grade varchar(255), primary key (id)) engine=InnoDB
-Hibernate: alter table enrollment add constraint uk_student_course unique (student_id, course_id)
-Hibernate: insert into student (full_name) values (?)
-Hibernate: insert into course (code,title) values (?,?)
-Hibernate: insert into enrollment (course_id,enrollment_date,grade,student_id) values (?,?,?,?)
-TASK2_ENROLL_OK_ID=1 GRADE=A
-Hibernate: insert into enrollment (course_id,enrollment_date,grade,student_id) values (?,?,?,?)
-WARN  org.hibernate.orm.jdbc.error : Duplicate entry '1-1' for key 'enrollment.uk_student_course'
-TASK2_DUPLICATE_REJECTED=Duplicate entry '1-1' for key 'enrollment.uk_student_course'
+=== POST 201 ===
+HTTP/1.1 201 
+Location: http://localhost:8080/api/pets/2
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi","species":"Cat","breed":"Scottish Fold","ownerId":1}
+
+=== GET NEW ID 2 ===
+HTTP/1.1 200 
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi","species":"Cat","breed":"Scottish Fold","ownerId":1}
+
+=== PUT 2 ===
+HTTP/1.1 200 
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi Updated","species":"Cat","breed":"British Shorthair","ownerId":1}
+
+=== PATCH 2 ===
+HTTP/1.1 200 
+{"id":2,"microchipNumber":"MC-1010","name":"Mochi Patched","species":"Cat","breed":"British Shorthair","ownerId":1}
+
+=== DELETE 2 (1st) ===
+HTTP/1.1 204 
+
+=== GET DELETED 2 (404) ===
+HTTP/1.1 404 
 ```
+
+- [x] `POST` → `201`
+- [x] `GET /{new-id}` → `200`
+- [x] `PUT /{id}` → `200`
+- [x] `PATCH /{id}` → `200` (other fields unchanged)
+- [x] `DELETE /{id}` → `204`
+- [x] `GET /{deleted-id}` → `404`
 
 **Reflection question:**
-_When must a many-to-many relationship be modeled as an association entity instead of a direct `@ManyToMany`, and what did the unique constraint protect in your test?_
+_For one endpoint in your capstone API, state: the method, the URL, what status code it returns on success, what status code it returns when the resource is not found, and why there is no JPA entity in the controller method signature._
 
 Your answer:
-You would want to use an association entity if there were additional fields in the relationship. The unique constraint stops the same `student_id` and `course_id` from being added more than once.
-
----
-
-## Task 3 — Fetch Strategies Experiment — LAZY vs EAGER
-
-**Approach / explanation:**
-I attempted to get the department name of the employee by using `employee.getDepartment().getName()` without a transaction. This caused a `LazyInitializationException`. I fixed this by applying the `@Transactional(readOnly = true)` annotation. This was compared to using a `JOIN FETCH` strategy, and I then compared how many SQL queries were executed.
-
-**Code / endpoint(s) used (if applicable):**
-```java
-public Employee getEmployeeWithoutTransaction(Long id) {
-    return employeeRepository.findById(id).orElseThrow();
-}
-
-@Transactional(readOnly = true)
-public String getDepartmentNameTransactional(Long id) {
-    Employee employee = employeeRepository.findById(id).orElseThrow();
-    return employee.getDepartment().getName();
-}
-
-@Query("SELECT e FROM Employee e JOIN FETCH e.department WHERE e.id = :id")
-Optional<Employee> findByIdWithDepartment(@Param("id") Long id);
-```
-
-**Evidence (screenshot filename, request/response sample, or file reference in this folder):**
-```text
--- Lazy fail (1 query):
-Hibernate: select e1_0.id,e1_0.department_id,e1_0.full_name from employee e1_0 where e1_0.id=?
-TASK3_LAZY_EXCEPTION=org.hibernate.LazyInitializationException: Could not initialize proxy [com.example.tasktracker.model.Department#1] - no session
-
--- @Transactional fix (2 queries):
-Hibernate: select e1_0.id,e1_0.department_id,e1_0.full_name from employee e1_0 where e1_0.id=?
-Hibernate: select d1_0.id,d1_0.name from department d1_0 where d1_0.id=?
-TASK3_TRANSACTIONAL_RESULT=Engineering
-
--- JOIN FETCH fix (1 query):
-Hibernate: select e1_0.id,e1_0.department_id,d1_0.id,d1_0.name,e1_0.full_name from employee e1_0 join department d1_0 on d1_0.id=e1_0.department_id where e1_0.id=?
-TASK3_JOIN_FETCH_RESULT=Engineering
-```
-`@Transactional` executed 2 queries (one for `Employee`, then another for `Department`), whereas `JOIN FETCH` loaded both in 1 query. Blanket `EAGER` on collections is avoided because it loads extra data on every query even when it isn't needed.
-
-**Reflection question:**
-_What causes `LazyInitializationException`, and why is prefer-LAZY plus explicit fetch join/`@EntityGraph` preferable to marking everything EAGER?_
-
-Your answer:
-`LazyInitializationException` occurs when you attempt to get a lazy association after the Hibernate session has closed. Using `LAZY` means that we only get the associated data when we explicitly call it using `JOIN FETCH` or `@EntityGraph`, instead of marking everything `EAGER` which always pulls extra related rows and causes N+1 queries.
-
----
-
-## Task 4 — Cascade + orphanRemoval — Safe vs. Dangerous
-
-**Approach / explanation:**
-In the `Department` entity, `employees` has `cascade = {CascadeType.PERSIST, CascadeType.MERGE}` and `orphanRemoval = true`. This means that if an employee is removed from the list and saved, the row gets deleted. In the `Student`–`Course` relationship, I avoided `CascadeType.REMOVE` and `ALL` so that if the student is deleted, the course remains.
-
-**Code / endpoint(s) used (if applicable):**
-```java
-@OneToMany(mappedBy = "department", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-private List<Employee> employees = new ArrayList<>();
-
-@OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-private List<Enrollment> enrollments = new ArrayList<>();
-
-@ManyToOne(fetch = FetchType.LAZY)
-@JoinColumn(name = "course_id", nullable = false)
-private Course course;
-```
-
-**Evidence (screenshot filename, request/response sample, or file reference in this folder):**
-```text
-Hibernate: select count(*) from employee e1_0
-TASK4_EMPLOYEES_BEFORE_REMOVE=2
-Hibernate: delete from employee where id=?
-Hibernate: select count(*) from employee e1_0
-TASK4_EMPLOYEES_AFTER_REMOVE=1
-
-Hibernate: delete from enrollment where id=?
-Hibernate: delete from student where id=?
-Hibernate: select count(*) from enrollment e1_0
-TASK4_ENROLLMENTS_AFTER_STUDENT_DELETE=0
-Hibernate: select count(*) from course c1_0
-TASK4_COURSES_AFTER_STUDENT_DELETE=1
-```
-
-**Reflection question:**
-_What is the difference between `CascadeType.REMOVE` and `orphanRemoval = true`, and in which situation is each appropriate or dangerous?_
-
-Your answer:
-`CascadeType.REMOVE` will only delete children if the parent is deleted, whereas `orphanRemoval = true` will also delete the child if it is removed from the parent's list. These are safe to use for relationships the parent owns such as `Department` to `Employee`. However, they are dangerous to use for shared entities like `Course`, as if one of the `Student` rows is deleted, it would delete the course for everyone.
-
----
-
-## Task 5 — Capstone Milestone 2 — ERD to JPA Entity Model
-
-**Approach / explanation:**
-I mapped the Vet Clinic ERD to JPA entities, with `Pet` owning `owner_id` and `Appointment` and `VaccinationRecord` owning the join foreign keys. All `@ManyToOne` relationships use `FetchType.LAZY`, and the cascades were set to `PERSIST` and `MERGE`.
-
-**Code / endpoint(s) used (if applicable):**
-```java
-Owner owner = ownerRepository.save(new Owner("Maria Clara", "09171234567", "maria@example.com"));
-Pet bantay = petRepository.save(new Pet("MC-9001", "Bantay", "Dog", "Aspin", owner));
-Veterinarian vet = veterinarianRepository.save(new Veterinarian("Dr. Jose Rizal", "VET-101", "General"));
-Vaccine vaccine = vaccineRepository.save(new Vaccine("Rabies", "Zoetis"));
-appointmentRepository.save(new Appointment(LocalDateTime.now().plusDays(1), "Checkup", bantay, vet));
-vaccinationRecordRepository.save(new VaccinationRecord(LocalDate.now(), LocalDate.now().plusYears(1), bantay, vaccine));
-```
-
-**Evidence (screenshot filename, request/response sample, or file reference in this folder):**
-| ERD Table | Entity | Cardinality & Owning Side | FK / Join | Fetch & Cascade Justification |
-| :--- | :--- | :--- | :--- | :--- |
-| `owner` | `Owner` | 1:N `Pet` (inverse) | `mappedBy = "owner"` | `LAZY` list; `PERSIST, MERGE` only |
-| `pet` | `Pet` | N:1 `Owner` (`Pet` owns) | `owner_id` | `LAZY` so pet queries don't always fetch owner |
-| `veterinarian` | `Veterinarian` | 1:N `Appointment` (inverse) | `mappedBy = "veterinarian"` | `LAZY` list; `PERSIST, MERGE` only |
-| `appointment` | `Appointment` | N:1 `Pet` & `Veterinarian` (`Appointment` owns) | `pet_id`, `vet_id` | `LAZY` on both FKs; no `REMOVE` to keep pet/vet |
-| `vaccine` | `Vaccine` | 1:N `VaccinationRecord` (inverse) | `mappedBy = "vaccine"` | `LAZY` list; no `REMOVE` on shared catalog |
-| `vaccination_record` | `VaccinationRecord` | N:M `Pet`–`Vaccine` (`VaccinationRecord` owns) | `pet_id`, `vaccine_id` | `LAZY` on both FKs; no `REMOVE` so `Vaccine` survives |
-
-```text
-Hibernate: insert into owner (email,full_name,phone) values (?,?,?)
-Hibernate: insert into pet (breed,microchip_number,name,owner_id,species) values (?,?,?,?,?)
-Hibernate: insert into veterinarian (full_name,license_number,specialization) values (?,?,?)
-Hibernate: insert into vaccine (manufacturer,name) values (?,?)
-Hibernate: insert into appointment (appointment_date,pet_id,reason,vet_id) values (?,?,?,?)
-Hibernate: insert into vaccination_record (administered_date,next_due_date,pet_id,vaccine_id) values (?,?,?,?)
-TASK5_OWNER=Maria Clara PET=Bantay
-TASK5_APPOINTMENTS=1 VACCINATION_RECORDS=1
-```
-
-**Reflection question:**
-_For one relationship in your capstone model, state the cardinality, the owning side, where the FK/join table lives, and why you chose that fetch and cascade setting._
-
-Your answer:
-`Pet` and `Vaccine` have an N:M relationship and are joined using the association entity `VaccinationRecord`. `VaccinationRecord` is the owner and has foreign keys of `pet_id` and `vaccine_id` in `vaccination_record`. I used `FetchType.LAZY` so that I don't get the full entities loaded unless needed, and I did not use `CascadeType.REMOVE` so that if the record was deleted, the `Vaccine` wouldn't be deleted as it is shared.
+GET `/api/pets/{id}` - The HTTP method is GET. The URL is `/api/pets/{id}`. It will return a 200 OK with a `PetDTO` if the pet exists. It will return a 404 Not Found if the ID does not exist in the database. There is no `Pet` JPA entity in the method signature because we are only using `PetDTO`s in the controller to keep the API contract separate from the Hibernate entities and any lazy relationships.
 
 ---
 
 ## Self-Check
 
-- [x] All Week 9 work on the `week9` branch (project at branch root, no `week9/` folder)
+- [x] All Week 10 work on the `week10` branch (project at branch root, no `week10/` folder)
 - [x] This file completed and renamed `answers.md`
+- [x] No JPA entity class appears in any controller method signature
 - [x] Repository link pasted into Moodle (no files uploaded)
