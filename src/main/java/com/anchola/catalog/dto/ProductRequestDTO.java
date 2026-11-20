@@ -1,15 +1,36 @@
 package com.anchola.catalog.dto;
 
 import com.anchola.catalog.entity.ProductStatus;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class ProductRequestDTO {
 
+    @NotBlank(message = "Product name is required")
+    @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters")
     private String name;
+
+    @NotBlank(message = "SKU is required")
+    @Size(max = 50, message = "SKU must be at most 50 characters")
+    @Pattern(regexp = "^[A-Z0-9-]+$", message = "SKU must contain only uppercase letters, numbers, and hyphens")
     private String sku;
+
+    @NotNull(message = "Price is required")
+    @Min(value = 1, message = "Price must be at least 1")
     private BigDecimal price;
+
+    @NotNull(message = "Stock quantity is required")
+    @Min(value = 0, message = "Stock quantity must be 0 or greater")
     private Integer stockQuantity;
+
     private ProductStatus status;
+
+    @NotNull(message = "Category ID is required")
+    @Min(value = 1, message = "Category ID must be at least 1")
     private Long categoryId;
 
     public ProductRequestDTO() {

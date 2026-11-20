@@ -3,6 +3,7 @@ package com.anchola.catalog.controller;
 import com.anchola.catalog.dto.ProductRequestDTO;
 import com.anchola.catalog.dto.ProductResponseDTO;
 import com.anchola.catalog.service.ProductService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +32,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO request) {
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO request) {
         ProductResponseDTO created = productService.createProduct(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -43,7 +44,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id,
-            @RequestBody ProductRequestDTO request) {
+            @Valid @RequestBody ProductRequestDTO request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 

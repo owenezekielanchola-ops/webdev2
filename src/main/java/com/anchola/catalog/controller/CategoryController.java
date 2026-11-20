@@ -3,6 +3,7 @@ package com.anchola.catalog.controller;
 import com.anchola.catalog.dto.CategoryRequestDTO;
 import com.anchola.catalog.dto.CategoryResponseDTO;
 import com.anchola.catalog.service.CategoryService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO request) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO request) {
         CategoryResponseDTO created = categoryService.createCategory(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -49,7 +50,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> updateCategory(
             @PathVariable Long id,
-            @RequestBody CategoryRequestDTO request) {
+            @Valid @RequestBody CategoryRequestDTO request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
