@@ -9,11 +9,16 @@ import com.anchola.catalog.exception.ResourceNotFoundException;
 import com.anchola.catalog.repository.CategoryRepository;
 import com.anchola.catalog.repository.ProductRepository;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -21,6 +26,16 @@ public class ProductService {
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDTO> getProducts(Long categoryId, Pageable pageable) {
+        int cappedSize = Math.min(pageable.getPageSize(), MAX_PAGE_SIZE);
+        Pageable cappedPageable = PageRequest.of(pageable.getPageNumber(), cappedSize, pageable.getSort());
+        Page<Product> page = (categoryId != null)
+                ? productRepository.findByCategoryId(categoryId, cappedPageable)
+                : productRepository.findAll(cappedPageable);
+        return page.map(this::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
