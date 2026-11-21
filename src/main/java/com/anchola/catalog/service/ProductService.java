@@ -63,7 +63,7 @@ public class ProductService {
         product.setStockQuantity(request.getStockQuantity());
         product.setStatus(request.getStatus() != null ? request.getStatus() : ProductStatus.ACTIVE);
         product.setCategory(category);
-        Product saved = productRepository.save(product);
+        Product saved = productRepository.saveAndFlush(product);
         return toResponseDTO(saved);
     }
 
@@ -81,7 +81,7 @@ public class ProductService {
             product.setStatus(request.getStatus());
         }
         product.setCategory(category);
-        Product updated = productRepository.save(product);
+        Product updated = productRepository.saveAndFlush(product);
         return toResponseDTO(updated);
     }
 

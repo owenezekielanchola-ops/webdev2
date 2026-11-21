@@ -2,9 +2,11 @@ package com.anchola.catalog.controller;
 
 import com.anchola.catalog.dto.ProductRequestDTO;
 import com.anchola.catalog.dto.ProductResponseDTO;
+import com.anchola.catalog.entity.ProductStatus;
 import com.anchola.catalog.service.ProductService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -40,6 +42,11 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsByStatus(@PathVariable ProductStatus status) {
+        return ResponseEntity.ok(productService.getProductsByStatus(status));
     }
 
     @PostMapping

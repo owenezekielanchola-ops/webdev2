@@ -168,14 +168,14 @@
       }
     },
     {
-      "name": "Create Product (201)",
+      "name": "Create Product 1 (201)",
       "event": [
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Returns 201 Created', function () {",
+              "pm.test('Returns 201 Created with default ACTIVE status', function () {",
               "    pm.response.to.have.status(201);",
               "    var json = pm.response.json();",
               "    pm.expect(json.status).to.eql('ACTIVE');",
@@ -195,6 +195,114 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"name\": \"Wireless Mouse\",\n  \"sku\": \"PROD-101\",\n  \"price\": 25.00,\n  \"stockQuantity\": 15,\n  \"categoryId\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "Create Product 2 (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Mechanical Keyboard\",\n  \"sku\": \"PROD-102\",\n  \"price\": 79.99,\n  \"stockQuantity\": 8,\n  \"categoryId\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "Create Product 3 (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"USB-C Hub\",\n  \"sku\": \"PROD-103\",\n  \"price\": 45.00,\n  \"stockQuantity\": 20,\n  \"categoryId\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/products",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products"]
+        }
+      }
+    },
+    {
+      "name": "Create Duplicate Product SKU - Conflict (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 409 Conflict on duplicate SKU', function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Duplicate SKU Product\",\n  \"sku\": \"PROD-101\",\n  \"price\": 30.00,\n  \"stockQuantity\": 5,\n  \"categoryId\": 1\n}"
         },
         "url": {
           "raw": "http://localhost:8080/api/products",
@@ -280,13 +388,14 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Returns 200 paginated metadata', function () {",
+              "pm.test('Returns 200 paginated metadata across multiple pages', function () {",
               "    pm.response.to.have.status(200);",
               "    var json = pm.response.json();",
               "    pm.expect(json).to.have.property('totalElements');",
               "    pm.expect(json).to.have.property('totalPages');",
-              "    pm.expect(json).to.have.property('first');",
-              "    pm.expect(json).to.have.property('last');",
+              "    pm.expect(json).to.have.property('first', true);",
+              "    pm.expect(json).to.have.property('last', false);",
+              "    pm.expect(json.content).to.have.lengthOf(2);",
               "});"
             ]
           }
@@ -339,6 +448,34 @@
             { "key": "page", "value": "0" },
             { "key": "size", "value": "10" }
           ]
+        }
+      }
+    },
+    {
+      "name": "Get Products by Status - Custom @Query (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 200 OK products matching status', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/status/ACTIVE",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products", "status", "ACTIVE"]
         }
       }
     },
@@ -464,7 +601,7 @@
       }
     },
     {
-      "name": "Delete Product (204)",
+      "name": "Delete Product 1 (204)",
       "event": [
         {
           "listen": "test",
@@ -487,6 +624,60 @@
           "host": ["localhost"],
           "port": "8080",
           "path": ["api", "products", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Product 2 (204)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 204 No Content', function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products", "2"]
+        }
+      }
+    },
+    {
+      "name": "Delete Product 3 (204)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns 204 No Content', function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/products/3",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "products", "3"]
         }
       }
     },

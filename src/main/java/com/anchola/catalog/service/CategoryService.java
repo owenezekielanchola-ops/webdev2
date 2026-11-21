@@ -39,7 +39,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponseDTO createCategory(CategoryRequestDTO request) {
         Category category = new Category(request.getName(), request.getDescription());
-        Category saved = categoryRepository.save(category);
+        Category saved = categoryRepository.saveAndFlush(category);
         return toResponseDTO(saved);
     }
 
@@ -49,7 +49,7 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
         category.setName(request.getName());
         category.setDescription(request.getDescription());
-        Category updated = categoryRepository.save(category);
+        Category updated = categoryRepository.saveAndFlush(category);
         return toResponseDTO(updated);
     }
 
